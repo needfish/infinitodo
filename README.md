@@ -23,6 +23,7 @@ This project was made in half-vibecode condition as a means to experiment with s
 - Forcing the clanker to always document dependencies in README (see Dependencies below.)
 - command tags in unified text input as opposed to dropdowns
 - ergonomic pseudo-NLP date inputs (auto infer date as next month, or in 6 days, or next monday etc.)
+- property-based testing
 
 Android only. WASM builds were pruned: the bundle weighed 13mb, ran too slow in a browser. Desktop builds were pruned too.
 
