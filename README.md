@@ -1,4 +1,4 @@
-# todo-tree
+# infinitodo
 
 > **AI-generated code notice:** This project was written with the assistance of a large language model. Free to modify, use at your own risk (although this is just a todo list app)
 
