@@ -2,19 +2,19 @@
 
 > **AI-generated code notice:** This project was written with the assistance of a large language model (DeepSeek V4 Flash). Free to modify, use at your own risk (although this is just a todo list app)
 
-[![CI](https://img.shields.io/github/actions/workflow/status/7kitan/todo-tree/ci.yml?style=flat-square&branch=main&label=CI)](https://github.com/7kitan/todo-tree/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/needfish/todo-tree/ci.yml?style=flat-square&branch=main&label=CI)](https://github.com/needfish/todo-tree/actions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-7F52FF?style=flat-square&logo=kotlin)](https://kotlinlang.org)
 [![Compose Multiplatform](https://img.shields.io/badge/Compose_Multiplatform-1.11.0-4285F4?style=flat-square&logo=jetpackcompose)](https://www.jetbrains.com/lp/compose-multiplatform/)
-[![Platform](https://img.shields.io/badge/Platform-Android%20|%20Desktop%20|%20Web-4CAF50?style=flat-square)]()
+[![Platform](https://img.shields.io/badge/Platform-Android-4CAF50?style=flat-square)]()
 
-<table>
-  <tr>
-    <td><img src="screenshots/SCR-20260525-bekm.png" alt="Mobile screenshot" width="100%"/></td>
-    <td><img src="screenshots/SCR-20260525-beto.png" alt="Desktop screenshot" width="100%"/></td>
-  </tr>
-</table>
+<p align="center">
+  <img src="screenshots/SCR-20260525-beto.png" alt="Mobile screenshot" width="220"/>
+</p>
+<p align="center">
+  <sub><i>Main screen — nested tasks with swipe actions</i></sub>
+</p>
 
-Task manager with infinite nested subtrees, keyboard-first navigation, NLP date parsing, `#` command syntax, swipe actions, etc.
+Task manager with infinite nested subtrees, NLP date parsing, `#` command syntax, swipe actions, etc.
 This project was made in half-vibecode condition as a means to experiment with some ideas:
 - Algebraic modeling of Tasks and Projects using Kotlin which I don't have experience using
 - CI/CD deployment test builds downloadable to use on my phone directly from GitHub
@@ -24,7 +24,7 @@ This project was made in half-vibecode condition as a means to experiment with s
 - command tags in unified text input as opposed to dropdowns
 - ergonomic pseudo-NLP date inputs (auto infer date as next month, or in 6 days, or next monday etc.)
 
-Used to have a WASM build, but even 13mb is too much, so this is limited to native desktop + android.
+Android only. WASM builds were pruned: the bundle weighed 13mb, ran too slow in a browser. Desktop builds were pruned too.
 
 ## Design References
 
@@ -40,18 +40,18 @@ Used to have a WASM build, but even 13mb is too much, so this is limited to nati
 - **NLP date parsing**: `do tomorrow`, `due fri`, `mar 7`, `next week`, `+3d` — relative and absolute dates
 - **`#` command syntax**: `#cat`/`#proj` for type, `#removecat` to delete a category, `#moveto` to reparent, `#word` for parent references
 - **Fuzzy autocomplete**: Dropdown suggestions with breadcrumbs for `#word`, `#removecat`, `#moveto`
-- **Keyboard-first navigation**: Arrow keys, Spacebar (toggle done), Enter (edit), A (add), Backspace/Delete (delete)
+- ~~**Keyboard-first navigation**~~: removed. Arrow keys, Spacebar (toggle done), Enter (edit), A (add), Backspace/Delete (delete) worked on desktop builds only
 - **Swipe actions**: Overlay-style buttons (Done, Wait, Delete) on task rows — peek on swipe, tap to confirm
 - **Inline editing**: Tap title to edit task properties (dates, title, item type)
 - **Inbox as default**: Stray tasks and unresolved references default to Inbox (immutable category)
 
 ## CI/CD
 
-| Event | Build + test | APK artifact | Web deploy |
-|---|---|---|---|
-| Push feature branch | ✅ | ❌ | ❌ |
-| PR to main | ✅ | ✅ | ❌ |
-| Merge (push to main) | ✅ | ✅ | ✅ |
+| Event | Build + test | APK deploy |
+|---|---|---|
+| Push feature branch | ✅ | ❌ |
+| PR to main / push to `dev` | ✅ | ✅ |
+| Deploy (push to `dev`) | — | ✅ |
 
 The debug APK artifact is uploaded to [`androidApp-debug.apk`](https://needfish.github.io/todo-tree/androidApp-debug.apk) for direct mobile download.
 
@@ -77,24 +77,12 @@ shared/src/
 │       ├── SwipeActionsRow.kt  # Overlay swipe with directional guard
 │       ├── TaskFab.kt          # Single FAB button
 │       └── EditTaskSheet.kt    # Modal bottom sheet (legacy)
-├── jvmMain/kotlin/com/example/todo_tree/
-│   ├── TimeUtil.jvm.kt         # JVM currentTimeMillis (System.currentTimeMillis)
-│   └── persistence/
-│       └── PlatformStorage.jvm.kt  # JVM: ~/.todo-tree/forest.json
-├── wasmJsMain/kotlin/com/example/todo_tree/
-│   ├── TimeUtil.wasmJs.kt      # Wasm currentTimeMillis (js Date.now())
-│   └── persistence/
-│       └── PlatformStorage.wasmJs.kt  # Wasm: window.localStorage
 ├── androidMain/kotlin/com/example/todo_tree/
 │   ├── TimeUtil.android.kt     # Android currentTimeMillis
 │   └── persistence/
 │       └── PlatformStorage.android.kt  # Android: Context.filesDir/forest.json
-├── jvmTest/
-├── androidMain/            # Android-specific (currentTimeMillis impl)
+├── commonTest/
 └── androidHostTest/
-webApp/src/
-└── wasmJsMain/kotlin/com/example/todo_tree/
-    └── main.kt             # Web entry point
 ```
 
 ## Dependencies
@@ -135,7 +123,6 @@ Supported date expressions: `today`, `tomorrow`, `next week`, `mon`–`sun`, `in
 
 ## Running
 
-- **Desktop**: `./gradlew :desktopApp:run`
 - **Android**: `./gradlew :androidApp:assembleDebug`
 
 ## Tests
@@ -156,5 +143,4 @@ shared/src/commonTest/kotlin/com/example/todo_tree/
 
 ### Running
 
-- **Desktop (JVM)**: `./gradlew :shared:jvmTest`
 - **Android host**: `./gradlew :shared:testAndroidHostTest`

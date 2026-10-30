@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -12,13 +11,6 @@ plugins {
 }
 
 kotlin {
-    jvm()
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-    }
-
     androidLibrary {
         namespace = "com.example.todo_tree.shared"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
