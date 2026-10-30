@@ -33,7 +33,6 @@ Android only. WASM builds were pruned: the bundle weighed 13mb, ran too slow in 
 | [Todoist](https://todoist.com) | Quick-add NLP, `#` command syntax, natural language date parsing, hierarchical projects |
 | [Things 3](https://culturedcode.com/things) | Clean hierarchy, swipe actions, start/due date distinction, Inbox as default capture zone |
 | [NotePlan](https://noteplan.co) | Markdown-rich tasks, daily/weekly notes linked to calendar, bi-directional backlinks, offline-first persistence |
-
 ## Features
 
 - **Three item types**: Task (swipeable, independent completion), Project (auto-completes when children done), Category (organizational, never completes)
@@ -44,16 +43,40 @@ Android only. WASM builds were pruned: the bundle weighed 13mb, ran too slow in 
 - **Swipe actions**: Overlay-style buttons (Done, Wait, Delete) on task rows — peek on swipe, tap to confirm
 - **Inline editing**: Tap title to edit task properties (dates, title, item type)
 - **Inbox as default**: Stray tasks and unresolved references default to Inbox (immutable category)
+## Command Syntax
 
-## CI/CD
+| Token | Description |
+|-------|-------------|
+| `<title>` | Add task as subtask of focused item |
+| `#cat` / `#category` | Create as Category type |
+| `#proj` / `#project` | Create as Project type |
+| `#removecat` / `#rmcat` | Delete a category (shows confirmation) |
+| `#moveto` / `#mt` | Move focused item to a target |
+| `#<word>` | Set parent reference by title |
+| `do <date>` | Set do (start) date |
+| `due <date>` | Set due date |
+| `<date>` | Set do date (shorthand) |
 
-| Event | Build + test | APK deploy |
-|---|---|---|
-| Push feature branch | ✅ | ❌ |
-| PR to main / push to `dev` | ✅ | ✅ |
-| Deploy (push to `dev`) | — | ✅ |
+Supported date expressions: `today`, `tomorrow`, `next week`, `mon`–`sun`, `in 3 days`, `+5d`, `+2w`, `mar 7`, `7 mar`, ordinal (`7th`).
 
-The debug APK artifact is uploaded to [`androidApp-debug.apk`](https://needfish.github.io/todo-tree/androidApp-debug.apk) for direct mobile download.
+## Building & Testing
+
+- **Debug APK**: `./gradlew :androidApp:assembleDebug`
+- **Host tests**: `./gradlew :shared:testAndroidHostTest`
+
+Uses **Kotest** (`io.kotest:kotest-property` + `kotest-assertions-core` + `kotest-framework-engine`) for property-based testing with built-in generators (Arb), shrinking, `checkAll`/`forAll` test functions, and Kotest matchers (`shouldBe`, `shouldBeNull`, `shouldBeTrue`).
+
+### Test structure
+
+```
+shared/src/commonTest/kotlin/com/example/todo_tree/
+├── Arbs.kt                          — Custom generators (Arb) for trees and commands
+├── DateParserTest.kt                — Example-based + invariant tests for NLP parsing
+└── model/
+    ├── TaskTreePropertyTest.kt      — Property tests for all tree operations
+    ├── CommandPropertyTest.kt       — Command roundtrip invariants (ADT correctness)
+    └── UndoManagerPropertyTest.kt   — Undo/redo stack behavior
+```
 
 ## Project Structure
 
@@ -105,42 +128,12 @@ shared/src/
 | kotlin-serialization | `2.3.21` | Plugin: @Serializable code gen | https://kotlinlang.org/docs/serialization.html |
 | kotlinx-serialization-json | `^1.8.1` | JSON serialization for persistence (forest save/load) | https://kotlinlang.org/docs/serialization.html |
 
-## Command Syntax
+## CI/CD
 
-| Token | Description |
-|-------|-------------|
-| `<title>` | Add task as subtask of focused item |
-| `#cat` / `#category` | Create as Category type |
-| `#proj` / `#project` | Create as Project type |
-| `#removecat` / `#rmcat` | Delete a category (shows confirmation) |
-| `#moveto` / `#mt` | Move focused item to a target |
-| `#<word>` | Set parent reference by title |
-| `do <date>` | Set do (start) date |
-| `due <date>` | Set due date |
-| `<date>` | Set do date (shorthand) |
+| Event | Build + test | APK deploy |
+|---|---|---|
+| Push feature branch | ✅ | ❌ |
+| PR to main / push to `dev` | ✅ | ✅ |
+| Deploy (push to `dev`) | — | ✅ |
 
-Supported date expressions: `today`, `tomorrow`, `next week`, `mon`–`sun`, `in 3 days`, `+5d`, `+2w`, `mar 7`, `7 mar`, ordinal (`7th`).
-
-## Running
-
-- **Android**: `./gradlew :androidApp:assembleDebug`
-
-## Tests
-
-Uses **Kotest** (`io.kotest:kotest-property` + `kotest-assertions-core` + `kotest-framework-engine`) for property-based testing with built-in generators (Arb), shrinking, `checkAll`/`forAll` test functions, and Kotest matchers (`shouldBe`, `shouldBeNull`, `shouldBeTrue`).
-
-### Test structure
-
-```
-shared/src/commonTest/kotlin/com/example/todo_tree/
-├── Arbs.kt                          — Custom generators (Arb) for trees and commands
-├── DateParserTest.kt                — Example-based + invariant tests for NLP parsing
-└── model/
-    ├── TaskTreePropertyTest.kt      — Property tests for all tree operations
-    ├── CommandPropertyTest.kt       — Command roundtrip invariants (ADT correctness)
-    └── UndoManagerPropertyTest.kt   — Undo/redo stack behavior
-```
-
-### Running
-
-- **Android host**: `./gradlew :shared:testAndroidHostTest`
+The debug APK artifact is uploaded to [`androidApp-debug.apk`](https://needfish.github.io/todo-tree/androidApp-debug.apk) for direct mobile download.
